@@ -42,11 +42,14 @@ public class Payment {
     @Column(name = "provider_name", length = 255)
     private String providerName;
 
-   @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "jsonb")
     private String details;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
+
+    @Column(nullable = false, length = 20)
+    private String currency;
 
     @Column(nullable = false, length = 20)
     private String status;
@@ -63,4 +66,11 @@ public class Payment {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @PrePersist
+    void prePersist() {
+        if (createdAt == null) {
+            createdAt = OffsetDateTime.now();
+        }
+    }
 }
