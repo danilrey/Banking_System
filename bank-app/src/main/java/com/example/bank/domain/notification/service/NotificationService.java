@@ -59,11 +59,42 @@ public class NotificationService {
     public List<Notification> getUnreadNotifications(CustomerProfile customer) {
         return notificationRepository.findByCustomerAndReadIsFalse(customer);
     }
-    public void markAsRead(Long notificationId) {
+    public Notification markAsRead(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new IllegalArgumentException("Notification not found" + notificationId));
     if(!notification.isRead()) {
         notification.setRead(true);
-        notificationRepository.save(notification);
+        notification = notificationRepository.save(notification);
     }
+    return notification;
+    }
+
+    public void markAllAsRead(CustomerProfile customer) {
+        List<Notification> notifications = notificationRepository.findByCustomerAndReadIsFalse(customer);
+
+        for (Notification n : notifications) {
+            n.setRead(true);
+        }
+        notificationRepository.saveAll(notifications);
+    }
+    public Notification createNotification(
+            CustomerProfile customer,
+            String type,
+            String channel,
+            String title,
+            String message,
+            String payloadJson
+    ) {
+        Notification notification = Notification.builder()
+                .customer(customer)
+                .type(type)
+                .channel(channel)
+                .title(title)
+                .message(message)
+                .payload(payloadJson)
+                .read(false)
+                .createdAt(OffsetDateTime.now())
+                .build();
+
+        return notificationRepository.save(notification);
     }
 }
