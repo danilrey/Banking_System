@@ -6,11 +6,13 @@ import com.example.bank.domain.customer.model.CustomerProfile;
 import com.example.bank.domain.deposit.model.Deposit;
 import com.example.bank.domain.deposit.model.DepositStatus;
 import com.example.bank.domain.deposit.repository.DepositRepository;
+import com.example.bank.domain.currency.model.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,15 +25,15 @@ public class DepositService {
     private final AccountRepository accountRepository;
 
     @Transactional
-    public Deposit createDeposit(Long accountId, double principalAmount, String currency, double monthlyInterest, int termMonths) {
+    public Deposit createDeposit(Long accountId, BigDecimal principalAmount, Currency currency, BigDecimal monthlyInterest, int termMonths) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found: " + accountId));
 
-        if (account.getBalance().compareTo(BigDecimal.valueOf(principalAmount)) < 0) {
+        if (account.getBalance().compareTo(principalAmount) < 0) {
             throw new IllegalArgumentException("Insufficient balance in account: " + accountId);
         }
 
-        account.setBalance(account.getBalance().subtract(BigDecimal.valueOf(principalAmount)));
+        account.setBalance(account.getBalance().subtract(principalAmount));
         accountRepository.save(account);
 
         Deposit deposit = Deposit.builder()
@@ -67,11 +69,11 @@ public class DepositService {
             throw new IllegalArgumentException("Deposit is not active: " + depositId);
         }
 
-        double interest = deposit.getPrincipalAmount() * deposit.getMonthlyInterest() * deposit.getTermMonths() / 12.0;
-        double totalAmount = deposit.getPrincipalAmount() + interest;
+        BigDecimal interest = deposit.getPrincipalAmount().multiply(deposit.getMonthlyInterest()).multiply(BigDecimal.valueOf(deposit.getTermMonths())).divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP);
+        BigDecimal totalAmount = deposit.getPrincipalAmount().add(interest);
 
         Account account = deposit.getAccount();
-        account.setBalance(account.getBalance().add(BigDecimal.valueOf(totalAmount)));
+        account.setBalance(account.getBalance().add(totalAmount));
         accountRepository.save(account);
 
         deposit.setStatus(DepositStatus.CLOSED);

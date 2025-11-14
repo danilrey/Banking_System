@@ -1,23 +1,26 @@
 package com.example.bank.domain.currency.service;
 
 import com.example.bank.domain.currency.adapter.CurrencyConverter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
 @Service
-@RequiredArgsConstructor
 public class CurrencyService {
 
     private final CurrencyConverter converter;
 
-    public double convert(double amount, String from, String to) {
+    public CurrencyService(CurrencyConverter converter) {
+        this.converter = converter;
+    }
+
+    public BigDecimal convert(BigDecimal amount, String from, String to) {
         return converter.convert(amount, from, to);
     }
 
-    public double rate(String from, String to) {
+    public BigDecimal rate(String from, String to) {
         return converter.rate(from, to);
     }
 
@@ -25,7 +28,7 @@ public class CurrencyService {
         return converter.supported();
     }
 
-    public Map<String, Double> baseRates() {
+    public Map<String, BigDecimal> baseRates() {
         return converter.baseRates();
     }
 }

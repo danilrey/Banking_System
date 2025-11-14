@@ -1,6 +1,7 @@
 package com.example.bank.api.rest;
 
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.currency.model.Currency;
 import com.example.bank.domain.deposit.model.Deposit;
 import com.example.bank.domain.deposit.model.DepositStatus;
 import com.example.bank.domain.deposit.service.DepositService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,9 +27,9 @@ public class DepositController {
     @PreAuthorize("hasRole('USER')")
     @ResponseBody
     public ResponseEntity<Deposit> createDeposit(@RequestParam Long accountId,
-                                                 @RequestParam double principalAmount,
-                                                 @RequestParam String currency,
-                                                 @RequestParam double monthlyInterest,
+                                                 @RequestParam BigDecimal principalAmount,
+                                                 @RequestParam Currency currency,
+                                                 @RequestParam BigDecimal monthlyInterest,
                                                  @RequestParam int termMonths) {
         Deposit deposit = depositService.createDeposit(accountId, principalAmount, currency, monthlyInterest, termMonths);
         return ResponseEntity.status(201).body(deposit);
@@ -76,9 +78,9 @@ public class DepositController {
     @PostMapping("/ui/deposits")
     @PreAuthorize("hasRole('USER')")
     public String createDepositPage(@RequestParam Long accountId,
-                                @RequestParam double principalAmount,
-                                @RequestParam String currency,
-                                @RequestParam double monthlyInterest,
+                                @RequestParam BigDecimal principalAmount,
+                                @RequestParam Currency currency,
+                                @RequestParam BigDecimal monthlyInterest,
                                 @RequestParam int termMonths) {
         depositService.createDeposit(accountId, principalAmount, currency, monthlyInterest, termMonths);
         return "redirect:/ui/deposits";

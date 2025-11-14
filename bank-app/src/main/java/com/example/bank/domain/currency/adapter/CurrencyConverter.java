@@ -1,12 +1,13 @@
 package com.example.bank.domain.currency.adapter;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
 public interface CurrencyConverter {
 
-    double convert(double amount, String from, String to);
-    double rate(String from, String to);
+    BigDecimal convert(BigDecimal amount, String from, String to);
+    BigDecimal rate(String from, String to);
     Set<String> supported();
-    Map<String, Double> baseRates();
+    Map<String, BigDecimal> baseRates();
 }

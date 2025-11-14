@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,14 +20,14 @@ public class CurrencyController {
     private final CurrencyService currencyService;
 
     @GetMapping("/convert")
-    public ResponseEntity<Double> convert(@RequestParam double amount,
+    public ResponseEntity<BigDecimal> convert(@RequestParam BigDecimal amount,
                                           @RequestParam String from,
                                           @RequestParam String to) {
         return ResponseEntity.ok(currencyService.convert(amount, from, to));
     }
 
     @GetMapping("/rate")
-    public ResponseEntity<Double> rate(@RequestParam String from,
+    public ResponseEntity<BigDecimal> rate(@RequestParam String from,
                                        @RequestParam String to) {
         return ResponseEntity.ok(currencyService.rate(from, to));
     }
@@ -37,7 +38,7 @@ public class CurrencyController {
     }
 
     @GetMapping("/baseRates")
-    public ResponseEntity<Map<String, Double>> baseRates() {
+    public ResponseEntity<Map<String, BigDecimal>> baseRates() {
         return ResponseEntity.ok(currencyService.baseRates());
     }
 }

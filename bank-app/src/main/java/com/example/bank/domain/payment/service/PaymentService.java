@@ -13,6 +13,7 @@ import com.example.bank.domain.payment.model.PaymentStatus;
 import com.example.bank.domain.payment.repository.PaymentRepository;
 import com.example.bank.domain.transaction.model.Transaction;
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.currency.model.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +34,7 @@ public class PaymentService {
     private final List<PaymentType> paymentTypes;
 
     @Transactional
-    public Payment payFromAccountNow(Long accountId, BigDecimal amount, String currency, PaymentCategory category, String providerName, String detailsJson) {
+    public Payment payFromAccountNow(Long accountId, BigDecimal amount, Currency currency, PaymentCategory category, String providerName, String detailsJson) {
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new IllegalArgumentException("Account not found " + accountId));
 
         PaymentType paymentType = resolveType(category);
@@ -73,7 +74,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment payFromCardNow(Long cardId, BigDecimal amount, String currency, PaymentCategory category, String providerName, String detailsJson) {
+    public Payment payFromCardNow(Long cardId, BigDecimal amount, Currency currency, PaymentCategory category, String providerName, String detailsJson) {
         Card card = cardRepository.findById(cardId).orElseThrow(() -> new IllegalArgumentException("Card not found " + cardId));
 
         Account account = card.getAccount();
@@ -119,7 +120,7 @@ public class PaymentService {
 
 
     @Transactional
-    public Payment scheduleFromAccount(Long accountId, BigDecimal amount, String currency, PaymentCategory category, String providerName, String detailsJson, OffsetDateTime when) {
+    public Payment scheduleFromAccount(Long accountId, BigDecimal amount, Currency currency, PaymentCategory category, String providerName, String detailsJson, OffsetDateTime when) {
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new IllegalArgumentException("Account not found " + accountId));
 
         Payment payment = Payment.builder()
@@ -139,7 +140,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment scheduleFromCard(Long cardId, BigDecimal amount, String currency, PaymentCategory category, String providerName, String detailsJson, OffsetDateTime when) {
+    public Payment scheduleFromCard(Long cardId, BigDecimal amount, Currency currency, PaymentCategory category, String providerName, String detailsJson, OffsetDateTime when) {
         Card card = cardRepository.findById(cardId).orElseThrow(() -> new IllegalArgumentException("Card not found " + cardId));
 
         Account account = card.getAccount();

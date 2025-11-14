@@ -4,6 +4,7 @@ import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.account.repository.AccountRepository;
 import com.example.bank.domain.card.model.Card;
 import com.example.bank.domain.card.repository.CardRepository;
+import com.example.bank.domain.currency.model.Currency;
 import com.example.bank.domain.transaction.model.Transaction;
 import com.example.bank.domain.transaction.model.TransactionType;
 import com.example.bank.domain.transaction.service.TransactionService;
@@ -24,7 +25,7 @@ public class CardPaymentChannel implements PaymentChannel {
     @Override
     @Transactional
     public Transaction pay(BigDecimal amount,
-                           String currency,
+                           Currency currency,
                            String description,
                            Account fromAccount,
                            Card fromCard) {
@@ -52,6 +53,7 @@ public class CardPaymentChannel implements PaymentChannel {
 
         account.setBalance(account.getBalance().subtract(amount));
         accountRepository.save(account);
+
 
         return transactionService.createTransaction(
                 account.getId(),

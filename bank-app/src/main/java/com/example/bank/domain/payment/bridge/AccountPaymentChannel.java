@@ -3,6 +3,7 @@ package com.example.bank.domain.payment.bridge;
 import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.account.repository.AccountRepository;
 import com.example.bank.domain.card.model.Card;
+import com.example.bank.domain.currency.model.Currency;
 import com.example.bank.domain.transaction.model.Transaction;
 import com.example.bank.domain.transaction.model.TransactionType;
 import com.example.bank.domain.transaction.service.TransactionService;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.math.BigDecimal;
 
 @Component
@@ -22,7 +22,7 @@ public class AccountPaymentChannel implements PaymentChannel {
 
     @Override
     @Transactional
-    public Transaction pay(BigDecimal amount, String currency, String description, Account fromAccount, Card fromCard) {
+    public Transaction pay(BigDecimal amount, Currency currency, String description, Account fromAccount, Card fromCard) {
         if (fromAccount == null) {
             throw new IllegalArgumentException("AccountPaymentChannel must not be null");
         }

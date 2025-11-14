@@ -2,9 +2,11 @@ package com.example.bank.domain.deposit.model;
 
 import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.currency.model.Currency;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -28,19 +30,21 @@ public class Deposit {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Column(name = "principal_amount", nullable = false)
-    private double principalAmount;
+    @Column(name = "principal_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal principalAmount;
 
 
-    @Column(nullable = false, length = 3)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Currency currency;
 
-    @Column(name = "monthly_interest", nullable = false)
-    private double monthlyInterest;
+    @Column(name = "monthly_interest", nullable = false, precision = 5, scale = 2)
+    private BigDecimal monthlyInterest;
 
     @Column(name = "term_months", nullable = false)
     private int termMonths;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private DepositStatus status;
 

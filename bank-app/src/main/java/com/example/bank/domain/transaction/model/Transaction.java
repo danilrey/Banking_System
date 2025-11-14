@@ -2,6 +2,7 @@ package  com.example.bank.domain.transaction.model;
 
 import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.card.model.Card;
+import com.example.bank.domain.currency.model.Currency;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,8 +39,9 @@ public class Transaction {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    @Column(nullable = false, length = 3)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Currency currency;
 
     @Column(nullable = false, length = 10)
     private String direction;

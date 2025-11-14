@@ -6,6 +6,7 @@ import com.example.bank.domain.payment.model.Payment;
 import com.example.bank.domain.payment.model.PaymentCategory;
 import com.example.bank.domain.payment.model.PaymentStatus;
 import com.example.bank.domain.payment.service.PaymentService;
+import com.example.bank.domain.currency.model.Currency;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -142,7 +143,7 @@ public class PaymentController {
     @Data
     public static class SchedulePaymentRequest {
         private BigDecimal amount;
-        private String currency;
+        private Currency currency;
         private String category;
         private String providerName;
         private String detailsJson;
@@ -152,7 +153,7 @@ public class PaymentController {
     @Data
     public static class PaymentRequest {
         private BigDecimal amount;
-        private String currency;
+        private Currency currency;
         private String category;
         private String providerName;
         private String detailsJson;

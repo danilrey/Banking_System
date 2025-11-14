@@ -4,6 +4,7 @@ import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.card.model.Card;
 import com.example.bank.domain.transaction.model.Transaction;
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.currency.model.Currency;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,8 +49,9 @@ public class Payment {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    @Column(nullable = false, length = 20)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Currency currency;
 
     @Column(nullable = false, length = 20)
     private String status;

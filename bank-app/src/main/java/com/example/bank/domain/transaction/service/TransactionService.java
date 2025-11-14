@@ -3,6 +3,7 @@ package com.example.bank.domain.transaction.service;
 import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.account.repository.AccountRepository;
 import com.example.bank.domain.card.model.Card;
+import com.example.bank.domain.currency.model.Currency;
 import com.example.bank.domain.transaction.base.BasicTransactionProcessor;
 import com.example.bank.domain.transaction.base.TransactionProcessor;
 import com.example.bank.domain.transaction.decorator.BonusTransactionDecorator;
@@ -37,7 +38,7 @@ public class TransactionService {
         return new BonusTransactionDecorator(cashback);
     }
 
-    public Transaction createTransaction(Long accountId, TransactionType type, BigDecimal amount, String currency, String direction, String description, Card relatedCard){
+    public Transaction createTransaction(Long accountId, TransactionType type, BigDecimal amount, Currency currency, String direction, String description, Card relatedCard){
         if (amount == null || amount.signum() == 0){
             throw new IllegalArgumentException("Amount must not be null or zero, and must be positive");
         }

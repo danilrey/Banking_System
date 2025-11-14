@@ -1,5 +1,6 @@
 package com.example.bank.api.rest;
 
+import com.example.bank.domain.currency.model.Currency;
 import com.example.bank.domain.transaction.model.Transaction;
 import com.example.bank.domain.transaction.model.TransactionType;
 import com.example.bank.domain.transaction.service.TransactionService;
@@ -57,7 +58,7 @@ public class TransactionController {
         private Long accountId;
         private TransactionType type;
         private BigDecimal amount;
-        private String currency;
+        private Currency currency; // changed from String to Currency
         private String direction;
         private String description;
     }

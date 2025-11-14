@@ -83,7 +83,6 @@ public class CardController {
     }
 
     @GetMapping("/ui/cards")
-    @PreAuthorize("hasRole('USER')")
     public String getCardsPage(Model model) {
         List<Card> cards = debitCardService.getAllCards();
         List<CardDto> cardDtos = cards.stream().map(this::toDto).toList();
