@@ -4,12 +4,14 @@ import com.example.bank.domain.card.factory.CardFactory;
 import com.example.bank.domain.card.model.Card;
 import com.example.bank.domain.card.repository.CardRepository;
 import com.example.bank.domain.card.service.DebitCardService;
+import com.example.bank.domain.customer.model.CustomerProfile;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +85,8 @@ public class CardController {
     }
 
     @GetMapping("/ui/cards")
-    public String getCardsPage(Model model) {
+    @PreAuthorize("hasRole('USER')")
+    public String getCardsPage(Model model, @AuthenticationPrincipal CustomerProfile customer) {
         List<Card> cards = debitCardService.getAllCards();
         List<CardDto> cardDtos = cards.stream().map(this::toDto).toList();
         model.addAttribute("cards", cardDtos);

@@ -1,5 +1,5 @@
 import {httpClient} from '../core/httpClient.js';
 
 export const depositApi = {
-    myDeposits: () => httpClient.get('/deposits/my')
+    myDeposits: () => httpClient.get('/api/deposits')
 };

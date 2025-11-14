@@ -7,6 +7,7 @@ import com.example.bank.domain.deposit.model.Deposit;
 import com.example.bank.domain.deposit.model.DepositStatus;
 import com.example.bank.domain.deposit.repository.DepositRepository;
 import com.example.bank.domain.currency.model.Currency;
+import com.example.bank.domain.currency.service.CurrencyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,17 +24,23 @@ public class DepositService {
 
     private final DepositRepository depositRepository;
     private final AccountRepository accountRepository;
+    private final CurrencyService currencyService;
 
     @Transactional
     public Deposit createDeposit(Long accountId, BigDecimal principalAmount, Currency currency, BigDecimal monthlyInterest, int termMonths) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found: " + accountId));
 
-        if (account.getBalance().compareTo(principalAmount) < 0) {
+        BigDecimal amountToSubtract = principalAmount;
+        if (!currency.name().equals(account.getCurrency())) {
+            amountToSubtract = currencyService.convert(principalAmount, currency.name(), account.getCurrency());
+        }
+
+        if (account.getBalance().compareTo(amountToSubtract) < 0) {
             throw new IllegalArgumentException("Insufficient balance in account: " + accountId);
         }
 
-        account.setBalance(account.getBalance().subtract(principalAmount));
+        account.setBalance(account.getBalance().subtract(amountToSubtract));
         accountRepository.save(account);
 
         Deposit deposit = Deposit.builder()
@@ -48,11 +55,6 @@ public class DepositService {
                 .build();
 
         return depositRepository.save(deposit);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Deposit> getDepositsByCustomer(CustomerProfile customer) {
-        return depositRepository.findByCustomerOrderByOpenedAtDesc(customer);
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +75,12 @@ public class DepositService {
         BigDecimal totalAmount = deposit.getPrincipalAmount().add(interest);
 
         Account account = deposit.getAccount();
-        account.setBalance(account.getBalance().add(totalAmount));
+        BigDecimal amountToAdd = totalAmount;
+        if (!deposit.getCurrency().name().equals(account.getCurrency())) {
+            amountToAdd = currencyService.convert(totalAmount, deposit.getCurrency().name(), account.getCurrency());
+        }
+
+        account.setBalance(account.getBalance().add(amountToAdd));
         accountRepository.save(account);
 
         deposit.setStatus(DepositStatus.CLOSED);
@@ -85,5 +92,15 @@ public class DepositService {
     @Transactional(readOnly = true)
     public List<Deposit> getDepositsByStatus(DepositStatus status) {
         return depositRepository.findByStatus(status);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Deposit> getDepositsByCustomer(CustomerProfile customer) {
+        return depositRepository.findByCustomerOrderByOpenedAtDesc(customer);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Deposit> getAllDeposits() {
+        return depositRepository.findAll();
     }
 }

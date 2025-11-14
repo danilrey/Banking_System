@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/",
                                 "/index.html",
                                 "/dashboard.html",
-                                "/ui/cards", // added public cards page
+                                "/ui/cards",
+                                "/ui/deposits",
                                 "/assets/**",
                                 "/favicon.ico",
                                 "/api/auth/login",

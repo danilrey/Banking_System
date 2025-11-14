@@ -1,24 +1,32 @@
-import {requireAuth, logout} from '../core/auth.js';
+import {logout} from '../core/auth.js';
 import {bindLogout} from '../core/ui.js';
-import {depositApi} from '../api/depositApi.js';
 
-requireAuth();
 bindLogout('logoutBtn', logout);
 
-const tbody = document.querySelector('#depositsTable tbody');
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('close-btn')) {
+        const id = e.target.dataset.id;
+        if (confirm('Вы уверены, что хотите закрыть депозит?')) {
+            closeDeposit(id);
+        }
+    }
+});
 
-(async function init() {
-    const deposits = await depositApi.myDeposits().catch(() => []);
-    tbody.innerHTML = '';
-    deposits.forEach(d => {
-        tbody.insertAdjacentHTML('beforeend', `
-            <tr>
-                <td>${d.id}</td>
-                <td>${d.accountId}</td>
-                <td>${d.principalAmount} ${d.currency}</td>
-                <td>${d.monthlyInterest}%</td>
-                <td>${d.status}</td>
-            </tr>
-        `);
-    });
-})();
+async function closeDeposit(id) {
+    try {
+        const response = await fetch(`/api/deposits/${id}/close`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwtToken') || ''}`
+            }
+        });
+        if (response.ok) {
+            alert('Депозит закрыт!');
+            location.reload();
+        } else {
+            alert('Ошибка: ' + response.status);
+        }
+    } catch (err) {
+        alert('Ошибка: ' + err.message);
+    }
+}
