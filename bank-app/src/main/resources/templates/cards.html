@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Карты - Freedom Bank</title>
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
+    <link rel="stylesheet" href="/assets/css/pages/cards.css">
+</head>
+<body>
+<div class="main__content">
+    <h1 class="page-title">Карты</h1>
+    <div class="page-subtitle">Управление дебетовыми и кредитными картами</div>
+
+    <section class="card card--soft">
+        <div class="card__title">Ваши карты</div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Номер</th>
+                <th>Счет</th>
+                <th>Статус</th>
+                <th>Срок</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="card : ${cards}">
+                <td th:text="${card.maskedCardNumber}">**** **** **** 1234</td>
+                <td th:text="${card.accountId}">123456789</td>
+                <td th:text="${card.status}">ACTIVE</td>
+                <td th:text="${card.expiryMonth + '/' + card.expiryYear}">12/2027</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card card--soft">
+        <div class="card__title">Создать новую карту</div>
+        <form th:action="@{/ui/cards}" method="post">
+            <div class="form-group">
+                <label class="label" for="accountId">ID счета</label>
+                <input class="input" id="accountId" name="accountId" type="number" required>
+            </div>
+            <button class="btn btn--primary" type="submit">Создать карту</button>
+        </form>
+    </section>
+</div>
+</body>
+</html>

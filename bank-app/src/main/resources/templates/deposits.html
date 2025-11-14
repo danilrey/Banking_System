@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Депозиты - Freedom Bank</title>
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
+    <link rel="stylesheet" href="/assets/css/pages/cards.css">
+</head>
+<body>
+<div class="main__content">
+    <h1 class="page-title">Депозиты</h1>
+    <div class="page-subtitle">Управление депозитами</div>
+
+    <section class="card card--soft">
+        <div class="card__title">Ваши депозиты</div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Сумма</th>
+                <th>Валюта</th>
+                <th>Процент</th>
+                <th>Срок (мес)</th>
+                <th>Статус</th>
+                <th>Открыт</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="deposit : ${deposits}">
+                <td th:text="${deposit.id}">1</td>
+                <td th:text="${deposit.principalAmount}">10000</td>
+                <td th:text="${deposit.currency}">KZT</td>
+                <td th:text="${deposit.monthlyInterest + '%'}">5%</td>
+                <td th:text="${deposit.termMonths}">12</td>
+                <td th:text="${deposit.status}">ACTIVE</td>
+                <td th:text="${#temporals.format(deposit.openedAt, 'dd/MM/yyyy')}">01/01/2023</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card card--soft">
+        <div class="card__title">Открыть новый депозит</div>
+        <form th:action="@{/ui/deposits}" method="post">
+            <div class="form-group">
+                <label class="label" for="accountId">ID счета</label>
+                <input class="input" id="accountId" name="accountId" type="number" required>
+            </div>
+            <div class="form-group">
+                <label class="label" for="principalAmount">Сумма</label>
+                <input class="input" id="principalAmount" name="principalAmount" type="number" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label class="label" for="currency">Валюта</label>
+                <select class="input" id="currency" name="currency" required>
+                    <option value="KZT">KZT</option>
+                    <option value="USD">USD</option>
+                    <option value="RUB">RUB</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="label" for="monthlyInterest">Месячный процент</label>
+                <input class="input" id="monthlyInterest" name="monthlyInterest" type="number" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label class="label" for="termMonths">Срок (месяцы)</label>
+                <input class="input" id="termMonths" name="termMonths" type="number" required>
+            </div>
+            <button class="btn btn--primary" type="submit">Открыть депозит</button>
+        </form>
+    </section>
+</div>
+</body>
+</html>

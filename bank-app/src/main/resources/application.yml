@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/bankdb
     username: postgres
-    password: 110755
+    password: 0000
   jpa:
     hibernate:
       ddl-auto: validate
@@ -10,6 +10,10 @@ spring:
   flyway:
     enabled: false
     locations: classpath:db/migration
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
 
 server:
   port: 8080

@@ -45,4 +45,68 @@ public class Card {
     void prePersist() {
         if (createdAt == null) createdAt = OffsetDateTime.now();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public int getExpiryMonth() {
+        return expiryMonth;
+    }
+
+    public void setExpiryMonth(int expiryMonth) {
+        this.expiryMonth = expiryMonth;
+    }
+
+    public int getExpiryYear() {
+        return expiryYear;
+    }
+
+    public void setExpiryYear(int expiryYear) {
+        this.expiryYear = expiryYear;
+    }
+
+    public String getCvv() {
+        return cvv;
+    }
+
+    public void setCvv(String cvv) {
+        this.cvv = cvv;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

@@ -5,7 +5,6 @@ import com.example.bank.domain.customer.model.CustomerProfile;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -29,21 +28,21 @@ public class Deposit {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Column(name = "principal_amount", nullable = false, precision = 19, scale = 2)
-    private BigDecimal principalAmount;
+    @Column(name = "principal_amount", nullable = false)
+    private double principalAmount;
 
 
     @Column(nullable = false, length = 3)
     private String currency;
 
-    @Column(name = "monthly_interest", nullable = false, precision = 5, scale = 2)
-    private BigDecimal monthlyInterest;
+    @Column(name = "monthly_interest", nullable = false)
+    private double monthlyInterest;
 
     @Column(name = "term_months", nullable = false)
     private int termMonths;
 
     @Column(nullable = false, length = 20)
-    private String status;
+    private DepositStatus status;
 
     @Column(name = "opened_at", nullable = false)
     private OffsetDateTime openedAt;
