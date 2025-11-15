@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.bank.domain.receipt.TransactionReceiptExporter;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
+    private final TransactionReceiptExporter receiptExporter = new TransactionReceiptExporter();
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
@@ -53,12 +56,22 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.markAsSuspicious(id, request.getReason()));
     }
 
+    @GetMapping("/{id}/receipt")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> getTransactionReceipt(@PathVariable Long id) throws Exception {
+        Transaction transaction = transactionService.getTransaction(id);
+        String receiptJson = receiptExporter.exportReceipt(transaction);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(receiptJson);
+    }
+
     @Data
     public static class CreateTransactionRequest{
         private Long accountId;
         private TransactionType type;
         private BigDecimal amount;
-        private Currency currency; // changed from String to Currency
+        private Currency currency;
         private String direction;
         private String description;
     }
