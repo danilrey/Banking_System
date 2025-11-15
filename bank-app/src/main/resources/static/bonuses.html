@@ -7,24 +7,48 @@
             <div class="card__title">Баланс бонусного счёта</div>
             <div class="card__main" id="bonusBalance">0 ₸</div>
         </div>
-        <div class="card card--soft">
-            <div class="card__title">Правила кешбэка</div>
-            <div id="cashbackRules"></div>
-        </div>
+    </section>
+
+    <section class="card" style="margin-top:1rem;">
+        <div class="card__title">Добавить бонус</div>
+        <form id="addBonusForm">
+            <div class="form-group">
+                <label for="bonusCategory">Категория</label>
+                <select id="bonusCategory" name="category" required>
+                    <option value="GROCERY">Продукты</option>
+                    <option value="FUEL">Топливо</option>
+                    <option value="ENTERTAINMENT">Развлечения</option>
+                    <option value="TRAVEL">Путешествия</option>
+                    <option value="HEALTH">Здоровье</option>
+                    <option value="EDUCATION">Образование</option>
+                    <option value="OTHER">Другое</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn--primary">Добавить бонус</button>
+        </form>
     </section>
 
     <section class="card card--soft" style="margin-top:1rem;">
-        <div class="card__title">История бонусов</div>
-        <table class="table" id="bonusTxTable">
-            <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Операция</th>
-                <th>Сумма</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div class="card__title">Применить кешбек</div>
+        <form id="applyCashbackForm">
+            <div class="form-group">
+                <label for="cashbackAmount">Сумма транзакции</label>
+                <input type="number" id="cashbackAmount" name="amount" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="cashbackCategory">Категория</label>
+                <select id="cashbackCategory" name="category" required>
+                    <option value="GROCERY">Продукты</option>
+                    <option value="FUEL">Топливо</option>
+                    <option value="ENTERTAINMENT">Развлечения</option>
+                    <option value="TRAVEL">Путешествия</option>
+                    <option value="HEALTH">Здоровье</option>
+                    <option value="EDUCATION">Образование</option>
+                    <option value="OTHER">Другое</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn--success">Применить кешбек</button>
+        </form>
     </section>
 </div>
 <script type="module" src="/assets/js/pages/bonusesPage.js"></script>
