@@ -2,6 +2,7 @@ package com.example.bank.domain.deposit.model;
 
 import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.currency.model.Currency;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,8 +34,9 @@ public class Deposit {
     private BigDecimal principalAmount;
 
 
-    @Column(nullable = false, length = 3)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Currency currency;
 
     @Column(name = "monthly_interest", nullable = false, precision = 5, scale = 2)
     private BigDecimal monthlyInterest;
@@ -42,8 +44,9 @@ public class Deposit {
     @Column(name = "term_months", nullable = false)
     private int termMonths;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String status;
+    private DepositStatus status;
 
     @Column(name = "opened_at", nullable = false)
     private OffsetDateTime openedAt;
