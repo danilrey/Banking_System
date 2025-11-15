@@ -40,6 +40,7 @@ public class SecurityConfig {
                                 "/dashboard.html",
                                 "/ui/cards",
                                 "/ui/deposits",
+                                "/ui/credits",
                                 "/assets/**",
                                 "/favicon.ico",
                                 "/api/auth/login",

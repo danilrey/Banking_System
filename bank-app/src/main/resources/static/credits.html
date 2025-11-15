@@ -1,21 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Кредиты - Freedom Bank</title>
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
+</head>
+<body>
 <div class="main__content">
     <h1 class="page-title">Кредиты</h1>
-    <div class="page-subtitle">Активные кредитные договоры и графики платежей</div>
+    <div class="page-subtitle">Управление кредитами</div>
 
     <section class="card card--soft">
         <div class="card__title">Ваши кредиты</div>
-        <table class="table" id="creditsTable">
+        <table class="table">
             <thead>
             <tr>
-                <th>№</th>
-                <th>Тип</th>
+                <th>ID</th>
                 <th>Сумма</th>
-                <th>Ставка</th>
+                <th>Валюта</th>
+                <th>Процент</th>
+                <th>Срок (мес)</th>
                 <th>Статус</th>
+                <th>Создан</th>
+                <th>Действия</th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            </tbody>
         </table>
+    </section>
+
+    <section class="card card--soft">
+        <div class="card__title">Открыть новый кредит</div>
+        <form>
+            <div class="form-group">
+                <label class="label" for="principalAmount">Сумма (до <span id="maxAmount">1 000 000</span>)</label>
+                <input class="input" id="principalAmount" name="principalAmount" type="number" step="0.01" min="0.01" max="1000000" required>
+            </div>
+            <div class="form-group">
+                <label class="label" for="currency">Валюта</label>
+                <select class="input" id="currency" name="currency" required>
+                    <option value="KZT">KZT</option>
+                    <option value="USD">USD</option>
+                    <option value="RUB">RUB</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="label" for="interestRateAnnual">Процентная ставка (мин. <span id="minRate">5.0</span>%)</label>
+                <input class="input" id="interestRateAnnual" name="interestRateAnnual" type="number" step="0.01" min="5.0" required>
+            </div>
+            <div class="form-group">
+                <label class="label" for="termMonths">Срок (месяцы, до <span id="maxTerm">60</span>)</label>
+                <input class="input" id="termMonths" name="termMonths" type="number" min="1" max="60" required>
+            </div>
+            <div class="form-group">
+                <label class="label" for="creditType">Тип кредита</label>
+                <select class="input" id="creditType" name="creditType" required>
+                    <option value="PERSONAL">Личный</option>
+                    <option value="BUSINESS">Бизнес</option>
+                    <option value="FAMILY">Семейный</option>
+                    <option value="MORTGAGE">Ипотека</option>
+                    <option value="FARMER">Фермерский</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="label" for="phone">Телефон</label>
+                <input class="input" id="phone" name="phone" type="text" required>
+            </div>
+            <button class="btn btn--primary" type="submit">Открыть кредит</button>
+        </form>
     </section>
 </div>
 <script type="module" src="/assets/js/pages/creditsPage.js"></script>
+</body>
+</html>

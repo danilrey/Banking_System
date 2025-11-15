@@ -1,6 +1,7 @@
 package com.example.bank.domain.customer.repository;
 
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
