@@ -17,6 +17,8 @@ import com.example.bank.domain.transaction.model.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.bank.domain.bonus.service.BonusService;
+
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -32,6 +34,7 @@ public class PaymentService {
     private final AccountPaymentChannel accountPaymentChannel;
     private final CardPaymentChannel cardPaymentChannel;
     private final List<PaymentType> paymentTypes;
+    private final BonusService bonusService;
 
     @Transactional
     public Payment payFromAccountNow(Long accountId,
@@ -142,6 +145,15 @@ public class PaymentService {
             payment.setStatus(PaymentStatus.PAID);
             payment.setPaidAt(OffsetDateTime.now());
             payment.setTransaction(tx);
+
+            if (category != null) {
+                bonusService.applyCashback(
+                        account,
+                        amount,
+                        category.name()
+                );
+            }
+
         } catch (Exception ex) {
             payment.setStatus(PaymentStatus.FAILED);
         }
