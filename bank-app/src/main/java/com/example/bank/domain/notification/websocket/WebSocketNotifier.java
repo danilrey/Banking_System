@@ -8,10 +8,14 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class WebSocketNotifier {
+
     private final SimpMessagingTemplate simpMessagingTemplate;
+
     public void sendNotification(Notification notification) {
         long customerId = notification.getCustomer().getId();
-
-        simpMessagingTemplate.convertAndSend("/topic/notifications"+ customerId, notification);
+        simpMessagingTemplate.convertAndSend(
+                "/topic/notifications/" + customerId,
+                notification
+        );
     }
 }

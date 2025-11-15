@@ -6,6 +6,8 @@ import com.example.bank.domain.bonus.model.CashbackRule;
 import com.example.bank.domain.bonus.repository.BonusAccountRepository;
 import com.example.bank.domain.bonus.repository.CashbackRuleRepository;
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.notification.model.NotificationType;
+import com.example.bank.domain.notification.service.NotificationService;
 import com.example.bank.domain.transaction.model.TransactionType;
 import com.example.bank.domain.transaction.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class BonusService {
     private final BonusAccountRepository bonusAccountRepository;
     private final CashbackRuleRepository cashbackRuleRepository;
     private final TransactionService transactionService;
+    private final NotificationService notificationService;
 
 
     @Transactional
@@ -55,11 +58,23 @@ public class BonusService {
         return bonusAccountRepository.findByCustomer(customer);
     }
 
+    @Transactional(readOnly = true)
+    public BigDecimal getBonusBalance(CustomerProfile customer) {
+        if (customer == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return bonusAccountRepository.findByCustomer(customer)
+                .map(BonusAccount::getBalance)
+                .orElse(BigDecimal.ZERO);
+    }
+
 
     @Transactional
     public BigDecimal applyCashback(Account account,
                                     BigDecimal purchaseAmount,
                                     String category) {
+
         if (account == null || purchaseAmount == null || purchaseAmount.signum() <= 0) {
             return BigDecimal.ZERO;
         }
@@ -102,7 +117,7 @@ public class BonusService {
         BonusAccount bonusAccount = getOrCreateBonusAccount(customer);
         bonusAccount.setBalance(bonusAccount.getBalance().add(cashback));
         bonusAccount.setUpdatedAt(OffsetDateTime.now());
-        bonusAccountRepository.save(bonusAccount);
+        bonusAccount = bonusAccountRepository.save(bonusAccount);
 
         String description = "Cashback " + bestPercent + "% for category " +
                 (category != null ? category : "ANY");
@@ -117,18 +132,24 @@ public class BonusService {
                 null
         );
 
+        String payloadJson = String.format(
+                "{\"cashback\":%s,\"currency\":\"%s\",\"category\":\"%s\",\"bonusBalance\":%s}",
+                cashback.toPlainString(),
+                account.getCurrency(),
+                category != null ? category : "",
+                bonusAccount.getBalance().toPlainString()
+        );
+
+        notificationService.notifyInApp(
+                customer,
+                NotificationType.BONUS,
+                "Cashback accrued",
+                "You received cashback " + cashback + " " + account.getCurrency() +
+                        " for category " + (category != null ? category : "ANY") +
+                        ". Bonus balance: " + bonusAccount.getBalance(),
+                payloadJson
+        );
+
         return cashback;
-    }
-
-
-    @Transactional(readOnly = true)
-    public BigDecimal getBonusBalance(CustomerProfile customer) {
-        if (customer == null) {
-            return BigDecimal.ZERO;
-        }
-
-        return bonusAccountRepository.findByCustomer(customer)
-                .map(BonusAccount::getBalance)
-                .orElse(BigDecimal.ZERO);
     }
 }

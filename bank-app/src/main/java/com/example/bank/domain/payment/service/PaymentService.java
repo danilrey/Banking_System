@@ -2,10 +2,14 @@ package com.example.bank.domain.payment.service;
 
 import com.example.bank.domain.account.model.Account;
 import com.example.bank.domain.account.repository.AccountRepository;
+import com.example.bank.domain.bonus.service.BonusService;
 import com.example.bank.domain.card.model.Card;
 import com.example.bank.domain.card.model.CardStatus;
 import com.example.bank.domain.card.repository.CardRepository;
 import com.example.bank.domain.customer.model.CustomerProfile;
+import com.example.bank.domain.notification.facade.ReceiptFacade;
+import com.example.bank.domain.notification.model.NotificationType;
+import com.example.bank.domain.notification.service.NotificationService;
 import com.example.bank.domain.payment.bridge.AccountPaymentChannel;
 import com.example.bank.domain.payment.bridge.CardPaymentChannel;
 import com.example.bank.domain.payment.bridge.PaymentType;
@@ -17,8 +21,6 @@ import com.example.bank.domain.transaction.model.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.bank.domain.bonus.service.BonusService;
-
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -35,6 +37,9 @@ public class PaymentService {
     private final CardPaymentChannel cardPaymentChannel;
     private final List<PaymentType> paymentTypes;
     private final BonusService bonusService;
+    private final ReceiptFacade receiptFacade;
+    private final NotificationService notificationService;
+
 
     @Transactional
     public Payment payFromAccountNow(Long accountId,
@@ -50,12 +55,13 @@ public class PaymentService {
 
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found " + accountId));
+        CustomerProfile customer = account.getCustomer();
 
         PaymentType paymentType = resolveType(category);
         String description = paymentType.buildDescription(providerName, detailsJson);
 
         Payment payment = Payment.builder()
-                .customer(account.getCustomer())
+                .customer(customer)
                 .fromAccount(account)
                 .category(category)
                 .providerName(providerName)
@@ -80,12 +86,27 @@ public class PaymentService {
             payment.setStatus(PaymentStatus.PAID);
             payment.setPaidAt(OffsetDateTime.now());
             payment.setTransaction(tx);
+
+            payment = paymentRepository.save(payment);
+
+            receiptFacade.sendPaymentReceipt(payment);
+
         } catch (Exception ex) {
             payment.setStatus(PaymentStatus.FAILED);
+            payment = paymentRepository.save(payment);
+
+            notificationService.notifyInApp(
+                    customer,
+                    NotificationType.PAYMENT,
+                    "Payment from account failed",
+                    "Payment to provider " + providerName + " failed: " + ex.getMessage(),
+                    "{\"paymentId\":" + payment.getId() + "}"
+            );
         }
 
-        return paymentRepository.save(payment);
+        return payment;
     }
+
 
     @Transactional
     public Payment payFromCardNow(Long cardId,
@@ -102,7 +123,6 @@ public class PaymentService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found: " + cardId));
 
-        // обновим статус, если карта истекла (метод мы добавляли в Card)
         card.updateStatusIfExpired();
         if (card.getStatus() == CardStatus.EXPIRED) {
             throw new IllegalStateException("Card is expired");
@@ -115,12 +135,13 @@ public class PaymentService {
         if (account == null) {
             throw new IllegalStateException("Card " + cardId + " has no linked account");
         }
+        CustomerProfile customer = account.getCustomer();
 
         PaymentType paymentType = resolveType(category);
         String description = paymentType.buildDescription(providerName, detailsJson);
 
         Payment payment = Payment.builder()
-                .customer(account.getCustomer())
+                .customer(customer)
                 .fromCard(card)
                 .category(category)
                 .providerName(providerName)
@@ -146,6 +167,8 @@ public class PaymentService {
             payment.setPaidAt(OffsetDateTime.now());
             payment.setTransaction(tx);
 
+            payment = paymentRepository.save(payment);
+
             if (category != null) {
                 bonusService.applyCashback(
                         account,
@@ -154,12 +177,24 @@ public class PaymentService {
                 );
             }
 
+            receiptFacade.sendPaymentReceipt(payment);
+
         } catch (Exception ex) {
             payment.setStatus(PaymentStatus.FAILED);
+            payment = paymentRepository.save(payment);
+
+            notificationService.notifyInApp(
+                    customer,
+                    NotificationType.PAYMENT,
+                    "Payment from card failed",
+                    "Payment to provider " + providerName + " failed: " + ex.getMessage(),
+                    "{\"paymentId\":" + payment.getId() + "}"
+            );
         }
 
-        return paymentRepository.save(payment);
+        return payment;
     }
+
 
     @Transactional
     public Payment scheduleFromAccount(Long accountId,
@@ -243,6 +278,8 @@ public class PaymentService {
         PaymentType type = resolveType(category);
         String description = type.buildDescription(payment.getProviderName(), payment.getDetails());
 
+        CustomerProfile customer = payment.getCustomer();
+
         try {
             Transaction tx;
 
@@ -255,7 +292,6 @@ public class PaymentService {
                         null
                 );
             } else if (payment.getFromCard() != null) {
-
                 Card card = payment.getFromCard();
                 card.updateStatusIfExpired();
                 if (card.getStatus() == CardStatus.EXPIRED) {
@@ -279,12 +315,28 @@ public class PaymentService {
             payment.setStatus(PaymentStatus.PAID);
             payment.setPaidAt(OffsetDateTime.now());
             payment.setTransaction(tx);
+
+            payment = paymentRepository.save(payment);
+
+            receiptFacade.sendPaymentReceipt(payment);
+
         } catch (Exception ex) {
             payment.setStatus(PaymentStatus.FAILED);
+            payment = paymentRepository.save(payment);
+
+            notificationService.notifyInApp(
+                    customer,
+                    NotificationType.PAYMENT,
+                    "Scheduled payment failed",
+                    "Scheduled payment to provider " + payment.getProviderName() +
+                            " failed: " + ex.getMessage(),
+                    "{\"paymentId\":" + payment.getId() + "}"
+            );
         }
 
-        return paymentRepository.save(payment);
+        return payment;
     }
+
 
     @Transactional
     public Payment cancelScheduledPayment(Long paymentId) {
@@ -297,6 +349,7 @@ public class PaymentService {
         payment.setStatus(PaymentStatus.CANCELLED);
         return paymentRepository.save(payment);
     }
+
 
     @Transactional(readOnly = true)
     public Payment getPayment(Long id) {
@@ -318,6 +371,7 @@ public class PaymentService {
     public List<Payment> getPaymentsByCategory(PaymentCategory category) {
         return paymentRepository.findByCategory(category);
     }
+
 
     private PaymentType resolveType(PaymentCategory category) {
         return paymentTypes.stream()

@@ -21,3 +21,6 @@ FOREIGN KEY (customer_id) REFERENCES customers(id);
 
 ALTER TABLE cards
     ADD COLUMN type varchar(20) NOT NULL DEFAULT 'DEBIT';
+
+ALTER TABLE notifications
+    ALTER COLUMN payload TYPE text;

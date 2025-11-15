@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.OffsetDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "notifications")
@@ -21,6 +23,7 @@ public class Notification {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id")
+    @JsonIgnore
     private CustomerProfile customer;
 
     @Column(nullable = false, length = 50)
@@ -35,7 +38,7 @@ public class Notification {
     @Column(columnDefinition = "text")
     private String message;
 
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "text")
     private String payload;
 
     @Column(name = "is_read", nullable = false)
