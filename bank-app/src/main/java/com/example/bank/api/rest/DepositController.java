@@ -29,7 +29,14 @@ public class DepositController {
     @PreAuthorize("hasAuthority('USER')")
     @ResponseBody
     public ResponseEntity<DepositResponse> createDeposit(@RequestBody CreateDepositRequest request) {
-        Deposit deposit = depositService.createDeposit(request.getAccountId(), request.getPrincipalAmount(), request.getCurrency(), request.getMonthlyInterest(), request.getTermMonths());
+        Deposit deposit = depositService.createDeposit(
+                request.getAccountId(),
+                request.getPrincipalAmount(),
+                request.getCurrency(),
+                request.getMonthlyInterest(),
+                request.getTermMonths(),
+                request.getEmail()    // <-- сюда
+        );
         DepositResponse response = mapToResponse(deposit);
         return ResponseEntity.status(201).body(response);
     }
@@ -58,10 +65,10 @@ public class DepositController {
     @PostMapping("/api/deposits/{id}/close")
     @PreAuthorize("hasAuthority('USER')")
     @ResponseBody
-    public ResponseEntity<DepositResponse> closeDeposit(@PathVariable Long id) {
-        System.out.println("Closing deposit: " + id);
+    public ResponseEntity<DepositResponse> closeDeposit(@PathVariable Long id,
+                                                        @RequestParam(required = false) String email) {
 
-        Deposit closed = depositService.closeDeposit(id);
+        Deposit closed = depositService.closeDeposit(id, email);
         return ResponseEntity.ok(mapToResponse(closed));
     }
 
@@ -86,8 +93,9 @@ public class DepositController {
                                     @RequestParam BigDecimal principalAmount,
                                     @RequestParam Currency currency,
                                     @RequestParam BigDecimal monthlyInterest,
-                                    @RequestParam int termMonths) {
-        depositService.createDeposit(accountId, principalAmount, currency, monthlyInterest, termMonths);
+                                    @RequestParam int termMonths,
+                                    @RequestParam(required = false) String email) {
+        depositService.createDeposit(accountId, principalAmount, currency, monthlyInterest, termMonths, email);
         return "redirect:/ui/deposits";
     }
 
@@ -98,6 +106,7 @@ public class DepositController {
         private Currency currency;
         private BigDecimal monthlyInterest;
         private int termMonths;
+        private String email;   // <- новый параметр
     }
 
     @Data
