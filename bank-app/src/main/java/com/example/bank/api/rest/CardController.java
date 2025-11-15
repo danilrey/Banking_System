@@ -1,10 +1,10 @@
 package com.example.bank.api.rest;
 
 import com.example.bank.domain.card.model.Card;
-import com.example.bank.domain.card.model.CardStatus;
 import com.example.bank.domain.card.model.CardType;
 import com.example.bank.domain.card.service.CreditCardService;
 import com.example.bank.domain.card.service.DebitCardService;
+import com.example.bank.domain.notification.facade.CardInfoFacade;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class CardController {
 
     private final DebitCardService debitCardService;
     private final CreditCardService creditCardService;
-
+    private final CardInfoFacade cardInfoFacade;
 
     @GetMapping("/api/cards")
     @PreAuthorize("hasRole('USER')")
@@ -58,13 +58,13 @@ public class CardController {
         return ResponseEntity.noContent().build();
     }
 
-
     @PostMapping("/api/cards/debit")
     @PreAuthorize("hasRole('USER')")
     @ResponseBody
     public ResponseEntity<CardResponse> createDebitCard(@RequestBody CreateCardRequest request) {
         Card card = debitCardService.createCard(request.getAccountId());
         card = debitCardService.addCard(card);
+        cardInfoFacade.notifyCardCreated(card);
         return ResponseEntity.status(201).body(toResponse(card));
     }
 
@@ -74,6 +74,7 @@ public class CardController {
     public ResponseEntity<CardResponse> createCreditCard(@RequestBody CreateCardRequest request) {
         Card card = creditCardService.createCard(request.getAccountId());
         card = creditCardService.addCard(card);
+        cardInfoFacade.notifyCardCreated(card);
         return ResponseEntity.status(201).body(toResponse(card));
     }
 
@@ -99,7 +100,6 @@ public class CardController {
         return ResponseEntity.ok(responses);
     }
 
-
     @GetMapping("/ui/cards")
     @PreAuthorize("hasRole('USER')")
     public String getCardsPage(Model model) {
@@ -114,7 +114,8 @@ public class CardController {
     @PreAuthorize("hasRole('USER')")
     public String createDebitCardUi(@RequestParam Long accountId) {
         Card card = debitCardService.createCard(accountId);
-        debitCardService.addCard(card);
+        card = debitCardService.addCard(card);
+        cardInfoFacade.notifyCardCreated(card);
         return "redirect:/ui/cards";
     }
 
@@ -122,10 +123,10 @@ public class CardController {
     @PreAuthorize("hasRole('USER')")
     public String createCreditCardUi(@RequestParam Long accountId) {
         Card card = creditCardService.createCard(accountId);
-        creditCardService.addCard(card);
+        card = creditCardService.addCard(card);
+        cardInfoFacade.notifyCardCreated(card);
         return "redirect:/ui/cards";
     }
-
 
     private CardResponse toResponse(Card card) {
         CardResponse r = new CardResponse();
@@ -157,7 +158,6 @@ public class CardController {
         String last4 = pan.substring(len - 4);
         return "************" + last4;
     }
-
 
     @Data
     public static class CreateCardRequest {
