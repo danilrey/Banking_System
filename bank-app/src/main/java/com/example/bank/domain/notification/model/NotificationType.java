@@ -5,6 +5,7 @@ public enum NotificationType{
     PAYMENT,
     CARD,
     BONUS,
+    DEPOSIT,
     SYSTEM,
     OTHER
 }
